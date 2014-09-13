@@ -20,19 +20,57 @@ AppAsset::register($this);
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
 </head>
-<body>
+<body class="skin-blue">
     <?php $this->beginBody() ?>
-    <div class="wrap">
-        <?php
-        echo $this->render('//layouts/top-menu');
-        ?>
+    <header class="header">
+        <a href="<?= Yii::$app->homeUrl ?>" class="logo">
+            <!-- Add the class icon to your logo image or logo icon to add the margining -->
+            <?= Yii::$app->name ?>
+        </a>
+        <!-- Header Navbar: style can be found in header.less -->
+        <nav class="navbar navbar-static-top" role="navigation">
+            <!-- Sidebar toggle button-->
+            <a href="#" class="navbar-btn sidebar-toggle" data-toggle="offcanvas" role="button">
+                <span class="sr-only"><?= Yii::t('app', 'Toggle navigation') ?></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <?php
+            $menuItemsMain = [
+                ['label' => 'Catalog', 'url' => ['/catalog']],
+                ['label' => 'Show', 'url' => ['/show']],
+            ];
+            echo Nav::widget([
+                'options' => ['class' => 'navbar-nav navbar-left'],
+                'items' => $menuItemsMain,
+                'encodeLabels' => false,
+            ]);
+            $menuItems = [
+                ['label' => 'Home', 'url' => ['/site/index']],
+            ];
+            if (Yii::$app->user->isGuest) {
+                $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
+            } else {
+                $menuItems[] = [
+                    'label' => 'Logout (' . Yii::$app->user->identity->username . ')',
+                    'url' => ['/site/logout'],
+                    'linkOptions' => ['data-method' => 'post']
+                ];
+            }
+            echo Nav::widget([
+                'options' => ['class' => 'navbar-nav navbar-right'],
+                'items' => $menuItems,
+            ]);
+            ?>
 
-        <div class="container">
+        </nav>
+    </header>
+    <div class="container">
         <?= Breadcrumbs::widget([
             'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
         ]) ?>
         <?= $content ?>
-        </div>
     </div>
 
     <footer class="footer">
