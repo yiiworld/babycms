@@ -33,7 +33,9 @@ class CatalogController extends Controller
     public function actionIndex()
     {
         $searchModel = new CatalogSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        //$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        //var_dump(Catalog::find()->all());die();
+        $dataProvider = Catalog::get(0, Catalog::find()->all());//var_dump($dataProvider);die();
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -61,7 +63,9 @@ class CatalogController extends Controller
     public function actionCreate()
     {
         $model = new Catalog();
+        $model->loadDefaultValues();
 
+        //var_dump(Yii::$app->params['adminEmail']);
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
