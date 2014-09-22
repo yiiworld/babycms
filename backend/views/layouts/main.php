@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
+use common\widgets\Alert;
 
 /* @var $this \yii\web\View */
 /* @var $content string */
@@ -66,19 +67,58 @@ AppAsset::register($this);
 
         </nav>
     </header>
-    <div class="container">
-        <?= Breadcrumbs::widget([
-            'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
-        ]) ?>
-        <?= $content ?>
-    </div>
+    <div class="wrapper row-offcanvas row-offcanvas-left">
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="left-side sidebar-offcanvas">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+                <!-- Sidebar user panel -->
+                <div class="user-panel">
+                    <div class="pull-left info">
+                        <p>
+                            <?= Yii::t('app', 'Hello, {name}', ['name' => Yii::$app->user->identity->username]) ?>
+                        </p>
+                        <a>
+                            <i class="fa fa-circle text-success"></i> <?= Yii::t('com', 'Online') ?>
+                        </a>
+                    </div>
+                </div>
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <?= $this->render('//layouts/sidebar-menu') ?>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
 
-    <footer class="footer">
-        <div class="container">
-        <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
-        <p class="pull-right"><?= Yii::powered() ?></p>
-        </div>
-    </footer>
+        <!-- Right side column. Contains the navbar and content of the page -->
+        <aside class="right-side">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    <?= $this->title ?>
+                    <?php if (isset($this->params['subtitle'])) : ?>
+                        <small><?= $this->params['subtitle'] ?></small>
+                    <?php endif; ?>
+                </h1>
+                <?= Breadcrumbs::widget(
+                    [
+                        'homeLink' => [
+                            'label' => '<i class="fa fa-dashboard"></i> ' . Yii::t('app', 'Home'),
+                            'url' => ['/']
+                        ],
+                        'encodeLabels' => false,
+                        'tag' => 'ol',
+                        'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : []
+                    ]
+                ) ?>
+            </section>
+
+            <!-- Main content -->
+            <section class="content">
+                <?= Alert::widget() ?>
+                <?= $content ?>
+            </section><!-- /.content -->
+        </aside><!-- /.right-side -->
+    </div>
 
     <?php $this->endBody() ?>
 </body>
