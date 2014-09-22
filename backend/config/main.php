@@ -30,5 +30,10 @@ return [
             'errorAction' => 'site/error',
         ],
     ],
+    'modules'=>[
+        'upload' => [
+            'class' => 'cabbage\kindeditor\Module',
+        ],
+    ],
     'params' => $params,
 ];
