@@ -53,8 +53,9 @@ class SiteController extends Controller
     {
         if (parent::beforeAction($action))
         {
+            $theme = Yii::$app->params['template'];
             Yii::$app->view->theme = new \yii\base\Theme([
-                'pathMap' => ['@frontend/views' => '@frontend/themes/default',],
+                'pathMap' => ['@frontend/views' => '@frontend/themes/' . $theme,],
 
             ]);
             return true;
