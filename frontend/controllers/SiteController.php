@@ -49,6 +49,18 @@ class SiteController extends Controller
         ];
     }
 
+    public function beforeAction($action)
+    {
+        if (parent::beforeAction($action))
+        {
+            Yii::$app->view->theme = new \yii\base\Theme([
+                'pathMap' => ['@frontend/views' => '@frontend/themes/default',],
+
+            ]);
+            return true;
+        }
+    }
+
     /**
      * @inheritdoc
      */
