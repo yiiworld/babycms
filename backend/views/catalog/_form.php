@@ -93,11 +93,11 @@ $this->registerJs($js,View::POS_END);
 
     <?= $form->field($model, 'page_size')->textInput() ?>
 
-    <?= $form->field($model, 'template_list')->textInput(['maxlength' => 255]) ?>
+    <?= $form->field($model, 'template_list')->dropDownList($arrTpl['list']) ?>
 
-    <?= $form->field($model, 'template_show')->textInput(['maxlength' => 255]) ?>
+    <?= $form->field($model, 'template_show')->dropDownList($arrTpl['show']) ?>
 
-    <?= $form->field($model, 'template_page')->textInput(['maxlength' => 255]) ?>
+    <?= $form->field($model, 'template_page')->dropDownList($arrTpl['page']) ?>
 
     <?= $form->field($model, 'redirect_url')->textInput(['maxlength' => 255]) ?>
 
