@@ -3,6 +3,7 @@ namespace common\components;
 
 use Yii;
 use common\components\CONSTANT;
+use yii\helpers\FileHelper;
 
 class F {
 	/*
@@ -91,5 +92,22 @@ class F {
 		return false;
 	}
 
+    public static function getAllTemplates()
+    {
+        $arrayTpl = FileHelper::findFiles(dirname(Yii::$app->BasePath).'/frontend/themes/'.Yii::$app->params['template'].'/site',['fileTypes'=>['php']]);
+        $arrTpl = ['page' => [], 'list' => [], 'show' =>[]];
+        foreach($arrayTpl as $tpl)
+        {
+            $tplName = substr(pathinfo($tpl,PATHINFO_BASENAME), 0, strpos(pathinfo($tpl,PATHINFO_BASENAME), '.'));
+            if(strpos($tplName, 'page') !== false)
+                $arrTpl['page'][$tplName] = $tplName;
+            elseif(strpos($tplName, 'list') !== false)
+                $arrTpl['list'][$tplName] = $tplName;
+            elseif(strpos($tplName, 'show') !== false)
+                $arrTpl['show'][$tplName] = $tplName;
+        }
+
+        return $arrTpl;
+    }
 
 }

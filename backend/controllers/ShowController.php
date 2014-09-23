@@ -8,6 +8,7 @@ use common\models\ShowSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use common\components\F;
 
 /**
  * ShowController implements the CRUD actions for Show model.
@@ -61,12 +62,16 @@ class ShowController extends Controller
     public function actionCreate()
     {
         $model = new Show();
+        $model->loadDefaultValues();
+
+        $arrTpl = F::getAllTemplates();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
                 'model' => $model,
+                'arrTpl' => $arrTpl,
             ]);
         }
     }
@@ -81,11 +86,14 @@ class ShowController extends Controller
     {
         $model = $this->findModel($id);
 
+        $arrTpl = F::getAllTemplates();
+
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
+                'arrTpl' => $arrTpl,
             ]);
         }
     }

@@ -8,7 +8,7 @@ use common\models\CatalogSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\helpers\FileHelper;
+use common\components\F;
 
 /**
  * CatalogController implements the CRUD actions for Catalog model.
@@ -69,21 +69,7 @@ class CatalogController extends Controller
         if(isset($_GET['parent_id']) && $_GET['parent_id'] > 0)
             $model->parent_id = $_GET['parent_id'];
 
-        //var_dump(Yii::$app->params['adminEmail']);
-        //echo dirname(Yii::$app->BasePath).'/frontend/themes/'.Yii::$app->params['template'].'/views';
-        $arrayTpl = FileHelper::findFiles(dirname(Yii::$app->BasePath).'/frontend/themes/'.Yii::$app->params['template'].'/site',['fileTypes'=>['php']]);
-        $arrTpl = ['page' => [], 'list' => [], 'show' =>[]];
-        foreach($arrayTpl as $tpl)
-        {
-            $tplName = substr(pathinfo($tpl,PATHINFO_BASENAME), 0, strpos(pathinfo($tpl,PATHINFO_BASENAME), '.'));
-            if(strpos($tplName, 'page') !== false)
-                $arrTpl['page'][$tplName] = $tplName;
-            elseif(strpos($tplName, 'list') !== false)
-                $arrTpl['list'][$tplName] = $tplName;
-            elseif(strpos($tplName, 'show') !== false)
-                $arrTpl['show'][$tplName] = $tplName;
-        }
-        //var_dump($arrTpl);die();
+        $arrTpl = F::getAllTemplates();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -105,11 +91,14 @@ class CatalogController extends Controller
     {
         $model = $this->findModel($id);
 
+        $arrTpl = F::getAllTemplates();
+
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
+                'arrTpl' => $arrTpl,
             ]);
         }
     }

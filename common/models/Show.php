@@ -85,4 +85,22 @@ class Show extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Catalog::className(), ['id' => 'catalog_id']);
     }
+    
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert))
+        {
+            if ($this->isNewRecord)
+            {
+                $this->create_time = date('Y-m-d H:i:s');
+                $this->update_time = date('Y-m-d H:i:s');
+            }
+            else
+            {
+                $this->update_time = date('Y-m-d H:i:s');
+            }
+            return true;
+        }
+        return false;
+    }
 }

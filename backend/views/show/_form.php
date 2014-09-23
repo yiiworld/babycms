@@ -44,17 +44,13 @@ $this->registerJs($js,View::POS_END);
 
     <?= $form->field($model, 'banner')->textInput(['maxlength' => 255]) ?>
 
-    <?= $form->field($model, 'template')->textInput(['maxlength' => 255]) ?>
+    <?= $form->field($model, 'template')->dropDownList($arrTpl['show']) ?>
 
     <?= $form->field($model, 'redirect_url')->textInput(['maxlength' => 255]) ?>
 
     <?= $form->field($model, 'click')->textInput(['maxlength' => 10]) ?>
 
     <?= $form->field($model, 'status')->dropDownList(F::getStatus2()) ?>
-
-    <?= $form->field($model, 'create_time')->textInput() ?>
-
-    <?= $form->field($model, 'update_time')->textInput() ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
