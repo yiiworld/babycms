@@ -6,7 +6,7 @@ use yii\helpers\ArrayHelper;
 use common\models\Catalog;
 use common\components\F;
 use yii\web\View;
-
+use kartik\widgets\FileInput;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\Catalog */
@@ -22,12 +22,14 @@ $js=<<<JS
                                 });
                         });
 JS;
-$this->registerJs($js,View::POS_END);
+$this->registerJs($js, View::POS_END);
 ?>
 
 <div class="catalog-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin([
+        'options'=>['class' => 'form-horizontal', 'enctype'=>'multipart/form-data']
+    ]); ?>
 
     <?= $form->field($model, 'parent_id')->dropDownList(ArrayHelper::merge([0 => Yii::t('app', 'Root Catalog')], ArrayHelper::map(Catalog::get(0, Catalog::find()->all()), 'id', 'str_label'))) ?>
 
@@ -84,6 +86,7 @@ $this->registerJs($js,View::POS_END);
     <?= $form->field($model, 'seo_description')->textInput(['maxlength' => 1022]) ?>
 
     <?= $form->field($model, 'banner')->textInput(['maxlength' => 255]) ?>
+    <?= $form->field($model, 'file')->fileInput() ?>
 
     <?= $form->field($model, 'is_nav')->dropDownList(F::getYesNo()) ?>
 

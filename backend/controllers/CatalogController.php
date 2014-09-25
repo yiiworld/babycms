@@ -9,6 +9,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use common\components\F;
+use yii\web\UploadedFile;
 
 /**
  * CatalogController implements the CRUD actions for Catalog model.
@@ -71,7 +72,11 @@ class CatalogController extends Controller
 
         $arrTpl = F::getAllTemplates();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            $model->file = UploadedFile::getInstance($model, 'file');
+            $model->file->saveAs('uploads/' . $model->file->baseName . 'abcd.' . $model->file->extension);
+            $model->banner = 'uploads/' . $model->file->baseName . 'abcd.' . $model->file->extension;
+            $model->save();
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
