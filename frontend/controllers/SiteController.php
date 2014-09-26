@@ -3,6 +3,9 @@ namespace frontend\controllers;
 
 use Yii;
 use common\models\LoginForm;
+use common\models\Catalog;
+use common\models\Show;
+use yii\data\Pagination;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
@@ -18,6 +21,7 @@ use yii\filters\AccessControl;
  */
 class SiteController extends Controller
 {
+    public $mainMenu = [];
     /**
      * @inheritdoc
      */
@@ -53,13 +57,21 @@ class SiteController extends Controller
     {
         if (parent::beforeAction($action))
         {
+            $this->mainMenu = array((array('label'=>Yii::t('common','Home'), 'url'=>array('/site/index'))));
+
             $theme = Yii::$app->params['template'];
             Yii::$app->view->theme = new \yii\base\Theme([
                 'pathMap' => ['@frontend/views' => '@frontend/themes/' . $theme,],
 
             ]);
+
+            $id = isset($_GET['id']) ? $_GET['id'] : 0;
+            $rootId = ($id>0) ? Catalog::getRootCatalogId($id, Catalog::find()->all()) : 0;
+
             return true;
         }
+
+        return false;
     }
 
     /**
@@ -83,102 +95,62 @@ class SiteController extends Controller
         return $this->render('index');
     }
 
-    public function actionLogin()
+    public function actionPage()
     {
-        if (!\Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        if(0 >= $id)
+            $this->redirect(Yii::$app->homeUrl);
 
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
-        } else {
-            return $this->render('login', [
-                'model' => $model,
-            ]);
-        }
+        $catalog = Catalog::findOne(['id' => $id]);
+        $templatePage = $catalog->template_page ? $catalog->template_page : 'page';
+
+        $portlet = Catalog::getCatalogSub2($id, Catalog::find()->all());
+        $portletTitle = Catalog::findOne(['id' => Catalog::getRootCatalogId($id, Catalog::find()->all())])->title;
+
+        return $this->render($templatePage, ['catalog'=>$catalog, 'portlet'=>$portlet, 'portletTitle'=>$portletTitle]);
     }
 
-    public function actionLogout()
+    public function actionList()
     {
-        Yii::$app->user->logout();
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        if(0 >= $id)
+            $this->redirect(Yii::$app->homeUrl);
 
-        return $this->goHome();
-    }
+        $catalog = Catalog::findOne(['id' => $id]);
+        $templatePage = $catalog->template_list ? $catalog->template_list : 'list';
 
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->sendEmail(Yii::$app->params['adminEmail'])) {
-                Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible.');
-            } else {
-                Yii::$app->session->setFlash('error', 'There was an error sending email.');
-            }
+        $portlet = Catalog::getCatalogSub2($id, Catalog::find()->all());
+        $portletTitle = Catalog::findOne(['id' => Catalog::getRootCatalogId($id, Catalog::find()->all())])->title;
 
-            return $this->refresh();
-        } else {
-            return $this->render('contact', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    public function actionAbout()
-    {
-        return $this->render('about');
-    }
-
-    public function actionSignup()
-    {
-        $model = new SignupForm();
-        if ($model->load(Yii::$app->request->post())) {
-            if ($user = $model->signup()) {
-                if (Yii::$app->getUser()->login($user)) {
-                    return $this->goHome();
-                }
-            }
-        }
-
-        return $this->render('signup', [
-            'model' => $model,
+        $ids = Catalog::getCatalogIdStr($id, Catalog::find()->all());echo $ids;
+        $query = Show::find()->where("catalog_id in ($ids)");
+        $pagination = new Pagination([
+            'defaultPageSize' => 20,
+            'totalCount' => $query->count(),
         ]);
+
+        $show = $query->orderBy('create_time desc')
+            ->offset($pagination->offset)
+            ->limit($pagination->limit)
+            ->all();
+
+        return $this->render($templatePage, ['catalog'=>$catalog, 'show'=>$show, 'portlet'=>$portlet, 'portletTitle'=>$portletTitle, 'pagination' => $pagination]);
     }
 
-    public function actionRequestPasswordReset()
+    public function actionShow()
     {
-        $model = new PasswordResetRequestForm();
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->sendEmail()) {
-                Yii::$app->getSession()->setFlash('success', 'Check your email for further instructions.');
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        if(0 >= $id)
+            $this->redirect(Yii::$app->homeUrl);
 
-                return $this->goHome();
-            } else {
-                Yii::$app->getSession()->setFlash('error', 'Sorry, we are unable to reset password for email provided.');
-            }
-        }
+        $show = Show::findOne(['id' => $id]);
+        $catalog = Catalog::findOne(['id' => $show->catalog_id]);
+        $templatePage = $show->template ? $show->template : $catalog->template_show ? $catalog->template_show : 'show';
 
-        return $this->render('requestPasswordResetToken', [
-            'model' => $model,
-        ]);
+        $portlet = Catalog::getCatalogSub2($id, Catalog::find()->all());
+        $portletTitle = Catalog::findOne(['id' => Catalog::getRootCatalogId($id, Catalog::find()->all())])->title;
+
+        return $this->render($templatePage, ['catalog'=>$catalog, 'show'=>$show, 'portlet'=>$portlet, 'portletTitle'=>$portletTitle]);
     }
 
-    public function actionResetPassword($token)
-    {
-        try {
-            $model = new ResetPasswordForm($token);
-        } catch (InvalidParamException $e) {
-            throw new BadRequestHttpException($e->getMessage());
-        }
-
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->resetPassword()) {
-            Yii::$app->getSession()->setFlash('success', 'New password was saved.');
-
-            return $this->goHome();
-        }
-
-        return $this->render('resetPassword', [
-            'model' => $model,
-        ]);
-    }
 }
