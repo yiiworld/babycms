@@ -36,6 +36,8 @@ class Catalog extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
+    public $file;
+
     public static function tableName()
     {
         return '{{%catalog}}';
@@ -50,9 +52,10 @@ class Catalog extends \yii\db\ActiveRecord
             [['parent_id', 'is_nav', 'sort_order', 'page_size', 'click', 'status'], 'integer'],
             [['title'], 'required'],
             [['content', 'page_type'], 'string'],
-            [['create_time', 'update_time'], 'safe'],
+            [['create_time', 'update_time', 'banner'], 'safe'],
             [['title', 'seo_title', 'seo_keywords', 'banner', 'template_list', 'template_show', 'template_page', 'redirect_url'], 'string', 'max' => 255],
-            [['brief', 'seo_description'], 'string', 'max' => 1022]
+            [['brief', 'seo_description'], 'string', 'max' => 1022],
+            [['file'], 'file'],
         ];
     }
 
@@ -270,6 +273,31 @@ class Catalog extends \yii\db\ActiveRecord
             return $arrayResult;
         else
             return;
+    }
+
+    public static function getMainNav($currentId = 0)
+    {
+        $mainMenu = [['label'=>Yii::t('app','Home'), 'url'=>array('/site/index'), 'active'=>(0==$currentId)]];
+        $allCatalog = Catalog::find()->where("parent_id=0")->orderBy(['sort_order' => SORT_ASC,'id' => SORT_ASC,])->all();
+        foreach($allCatalog as $catalog)
+        {
+            $item = [];
+            if($catalog->redirect_url)
+            {// redirect to other site
+                $item = ['label'=>$catalog->title, 'url'=>$catalog->redirect_url, 'active'=>($catalog->id==$currentId)];
+            }
+            else
+            {
+                if('list' == $catalog->page_type)
+                    $item = ['label'=>$catalog->title, 'url'=>['/site/list/','id'=>$catalog->id], 'active'=>($catalog->id==$currentId)];
+                else
+                    $item = ['label'=>$catalog->title, 'url'=>['/site/page/','id'=>$catalog->id], 'active'=>($catalog->id==$currentId)];
+            }
+
+            if(!empty($item))
+                array_push($mainMenu, $item);
+        }
+        return $mainMenu;
     }
 }
 
