@@ -28,12 +28,16 @@ $this->registerJs($js, View::POS_END);
 <div class="catalog-form">
 
     <?php $form = ActiveForm::begin([
-        'options'=>['class' => 'form-horizontal', 'enctype'=>'multipart/form-data']
+        'options'=>['class' => 'form-horizontal', 'enctype'=>'multipart/form-data'],
+        'fieldConfig' => [
+            'template' => "{label}\n<div class=\"col-lg-3\">{input}{hint}</div>\n<div class=\"col-lg-8\">abc{error}</div>",
+            'labelOptions' => ['class' => 'col-lg-1 control-label'],
+        ],
     ]); ?>
 
     <?= $form->field($model, 'parent_id')->dropDownList(ArrayHelper::merge([0 => Yii::t('app', 'Root Catalog')], ArrayHelper::map(Catalog::get(0, Catalog::find()->all()), 'id', 'str_label'))) ?>
 
-    <?= $form->field($model, 'title')->textInput(['maxlength' => 255]) ?>
+    <?= $form->field($model, 'title')->textInput(['maxlength' => 255])->hint('test') ?>
 
     <?= $form->field($model, 'brief')->textInput(['maxlength' => 1022]) ?>
 
@@ -85,8 +89,12 @@ $this->registerJs($js, View::POS_END);
 
     <?= $form->field($model, 'seo_description')->textInput(['maxlength' => 1022]) ?>
 
-    <?= $form->field($model, 'banner')->textInput(['maxlength' => 255]) ?>
-    <?= $form->field($model, 'file')->fileInput() ?>
+    <?= $form->field($model, 'banner', [
+        'template' => "{label}\n<div class=\"col-lg-3\">{input}</div>\n",
+    ])->textInput(['maxlength' => 255]) ?>
+    <?= $form->field($model, 'file', [
+        'template' => "<div class=\"col-lg-offset-1 col-lg-3\">{input}</div>\n<div class=\"col-lg-8\">{error}</div>",
+    ])->fileInput() ?>
 
     <?= $form->field($model, 'is_nav')->dropDownList(F::getYesNo()) ?>
 
@@ -109,21 +117,12 @@ $this->registerJs($js, View::POS_END);
     <?= $form->field($model, 'status')->dropDownList(F::getStatus2()) ?>
 
     <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        <div class="col-lg-offset-1 col-lg-11">
+            <?= Html::submitButton($model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        </div>
     </div>
 
     <?php ActiveForm::end(); ?>
 
 </div>
 
-<?php/* $form = ActiveForm::begin();
-echo $form::widget([
-    'model' => $model,
-    'form' => $form,
-    'columns' => 1,
-    'attributes' => [
-        'content'=>['widgetClass'=>cabbage\kindeditor\KindEditor::className(), 'options'=>[]],
-    ]
-]);
-echo Html::submitButton($model->isNewRecord ? Yii::t('app','Create') : Yii::t('app','Update'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']);
-ActiveForm::end(); */?>
